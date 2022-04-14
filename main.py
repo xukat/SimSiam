@@ -14,8 +14,11 @@ from optimizers import get_optimizer, LR_Scheduler
 from linear_eval import main as linear_eval
 from datetime import datetime
 
-def main(device, args):
+import sys
+sys.path.append(os.path.abspath("../rnn_basic/"))
+import pdb
 
+def main(device, args):
     train_loader = torch.utils.data.DataLoader(
         dataset=get_dataset(
             transform=get_aug(train=True, **args.aug_kwargs), 
@@ -69,10 +72,9 @@ def main(device, args):
     global_progress = tqdm(range(0, args.train.stop_at_epoch), desc=f'Training')
     for epoch in global_progress:
         model.train()
-        
+       
         local_progress=tqdm(train_loader, desc=f'Epoch {epoch}/{args.train.num_epochs}', disable=args.hide_progress)
         for idx, ((images1, images2), labels) in enumerate(local_progress):
-
             model.zero_grad()
             data_dict = model.forward(images1.to(device, non_blocking=True), images2.to(device, non_blocking=True))
             loss = data_dict['loss'].mean() # ddp
@@ -90,6 +92,7 @@ def main(device, args):
         epoch_dict = {"epoch":epoch, "accuracy":accuracy}
         global_progress.set_postfix(epoch_dict)
         logger.update_scalers(epoch_dict)
+        pdb.set_trace()
     
     # Save checkpoint
     model_path = os.path.join(args.ckpt_dir, f"{args.name}_{datetime.now().strftime('%m%d%H%M%S')}.pth") # datetime.now().strftime('%Y%m%d_%H%M%S')
