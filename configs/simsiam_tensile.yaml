@@ -1,8 +1,10 @@
 name: simsiam_tensile 
 dataset: 
-  name: tensile
+  name: tensile_masked
+    # name: tensile
   image_size: 172
   num_workers: 4
+  mask_background: False 
 
 model: 
   name: simsiam
@@ -20,9 +22,9 @@ train:
   final_lr: 0
   num_epochs: 800 # this parameter influence the lr decay
   ###################
-  stop_at_epoch: 50 # has to be smaller than num_epochs
+  stop_at_epoch: 5 # has to be smaller than num_epochs
   ####################
-  batch_size: 2
+  batch_size: 32
   knn_monitor: False # knn monitor will take more time
   knn_interval: 1
   knn_k: 25

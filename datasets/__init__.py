@@ -36,7 +36,7 @@ def get_dataset(dataset, data_dir, transform, train=True, download=False, debug_
         dataset = TensileSampleDatasetImagesOnly(
                 os.path.join(data_dir, "experiment_info_cleaned.csv"),
                 os.path.join(data_dir, "all_images"),
-                mask_dir=os.path.joing(data_dir, "all_masks"),
+                mask_dir=os.path.join(data_dir, "all_masks"),
                 dset=split,
                 train_split=0.8,
                 image_extractor='vanilla',
