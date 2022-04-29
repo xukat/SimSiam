@@ -71,7 +71,6 @@ def main(device, args):
     # Start training
     global_progress = tqdm(range(0, args.train.stop_at_epoch), desc=f'Training')
     for epoch in global_progress:
-        break
         model.train()
         local_progress=tqdm(train_loader, desc=f'Epoch {epoch}/{args.train.num_epochs}', disable=args.hide_progress)
         for idx, ((images1, images2), labels) in enumerate(local_progress):
@@ -82,7 +81,6 @@ def main(device, args):
             optimizer.step()
             lr_scheduler.step()
             data_dict.update({'lr':lr_scheduler.get_lr()})
-            
             local_progress.set_postfix(data_dict)
             logger.update_scalers(data_dict)
 

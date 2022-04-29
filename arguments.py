@@ -14,6 +14,9 @@ import warnings
 
 from datetime import datetime
 
+import sys
+sys.path.append("../")
+from rnn_basic.utils import AttrDict
 
 class Namespace(object):
     def __init__(self, somedict):
@@ -54,6 +57,79 @@ def get_args():
     parser.add_argument('--hide_progress', action='store_true')
     args = parser.parse_args()
 
+
+    with open(args.config_file, 'r') as f:
+        for key, value in Namespace(yaml.load(f, Loader=yaml.FullLoader)).__dict__.items():
+            vars(args)[key] = value
+
+    if args.debug:
+        if args.train: 
+            args.train.batch_size = 2
+            args.train.num_epochs = 1
+            args.train.stop_at_epoch = 1
+        if args.eval: 
+            args.eval.batch_size = 2
+            args.eval.num_epochs = 1 # train only one epoch
+        args.dataset.num_workers = 0
+
+
+    assert not None in [args.log_dir, args.data_dir, args.ckpt_dir, args.name]
+
+    args.log_dir = os.path.join(args.log_dir, 'in-progress_'+datetime.now().strftime('%m%d%H%M%S_')+args.name)
+
+    os.makedirs(args.log_dir, exist_ok=False)
+    print(f'creating file {args.log_dir}')
+    os.makedirs(args.ckpt_dir, exist_ok=True)
+
+    shutil.copy2(args.config_file, args.log_dir)
+    set_deterministic(args.seed)
+
+
+    vars(args)['aug_kwargs'] = {
+        'name':args.model.name,
+        'image_size': args.dataset.image_size
+    }
+    vars(args)['dataset_kwargs'] = {
+        'dataset':args.dataset.name,
+        'data_dir': args.data_dir,
+        'download':args.download,
+        'debug_subset_size': args.debug_subset_size if args.debug else None,
+    }
+    vars(args)['dataloader_kwargs'] = {
+        'drop_last': True,
+        'pin_memory': True,
+        'num_workers': args.dataset.num_workers,
+    }
+
+    return args
+
+
+def get_args_jupyter(
+    config_file,
+    debug=False,
+    debug_subset_size=8,
+    download=False,
+    data_dir=os.getenv('DATA'),
+    log_dir=os.getenv('LOG'),
+    ckpt_dir=os.getenv('CHECKPOINT'),
+    device='cuda' if torch.cuda.is_available() else 'cpu',
+    eval_from=None,
+    hide_progress=False
+    ):
+    args_dict = {
+            "config_file" : config_file,
+            "debug": debug,
+            "debug_subset_size": debug_subset_size,
+            "download": download,
+            "data_dir": data_dir,
+            "log_dir": log_dir,
+            "ckpt_dir": ckpt_dir,
+            "device": device,
+            "eval_from": eval_from,
+            "hide_progress": hide_progress
+            }
+    args = AttrDict()
+    args.update(args_dict)
 
     with open(args.config_file, 'r') as f:
         for key, value in Namespace(yaml.load(f, Loader=yaml.FullLoader)).__dict__.items():

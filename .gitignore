@@ -7,3 +7,4 @@ tmp/
 data/
 Data/
 *.swp
+.ipynb_checkpoints/

@@ -1,9 +1,9 @@
-name: simsiam_tensile 
+name: simsiam_tensile_masked
 dataset: 
-  name: tensile
+  name: tensile_masked
   image_size: 172
   num_workers: 4
-  mask_background: False 
+  mask_background: True  
 
 model: 
   name: simsiam
@@ -23,7 +23,7 @@ train:
   ###################
   stop_at_epoch: 100 # has to be smaller than num_epochs
   ####################
-  batch_size: 256
+  batch_size: 256 
   knn_monitor: False # knn monitor will take more time
   knn_interval: 1
   knn_k: 25
